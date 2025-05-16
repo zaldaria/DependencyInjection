@@ -2,22 +2,40 @@ package org.example;
 
 import java.lang.reflect.Field;
 import java.util.Properties;
-import java.io.FileInputStream;
 import java.io.IOException;
 
+/**
+ * Класс для внедрения зависимостей, который автоматически инжектирует реализации
+ * в поля, помеченные аннотацией AutoInjectable, на основе конфигурации из файла config.properties
+ */
 public class Injector {
     private final Properties properties;
-
+    /**
+     * Создает новый экземпляр Injector и загружает зависимости
+     * из файла config.properties, который должен находится в resources
+     *
+     * @throws RuntimeException если файл конфигурации не может быть загружен
+     */
     public Injector() {
         properties = new Properties();
         try {
-            // Загружаем файл свойств
             properties.load(getClass().getClassLoader().getResourceAsStream("config.properties"));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load properties file", e);
         }
     }
-
+    /**
+     * Выполняет внедрение зависимостей в переданный объект
+     * <p>
+     * Сканирует все поля объекта на наличие аннотации AutoInjectable и
+     * внедряет соответствующие реализации согласно конфигурации
+     * </p>
+     *
+     * @param <T> тип объекта для внедрения зависимостей
+     * @param object целевой объект для внедрения зависимостей
+     * @return объект с внедренными зависимостями
+     * @throws RuntimeException если внедрение зависимостей не удалось
+     */
     public <T> T inject(T object) {
         Class<?> clazz = object.getClass();
 
@@ -41,7 +59,6 @@ public class Injector {
                 }
             }
         }
-
         return object;
     }
 }
